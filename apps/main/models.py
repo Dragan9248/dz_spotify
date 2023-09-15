@@ -184,8 +184,6 @@ class Genre(models.Model):
 
 
 class Song(models.Model):
-    """Song model."""
-
     title = models.CharField(
         verbose_name='название песни',
         max_length=50
@@ -194,7 +192,7 @@ class Song(models.Model):
         to=Album,
         on_delete=models.CASCADE,
         verbose_name='альбом',
-        related_name='songs'  # Добавлен related_name
+        related_name='songs'
     )
     audio_file = models.FileField(
         verbose_name='аудио файл',
@@ -219,11 +217,21 @@ class Song(models.Model):
         default=False
     )
 
+    is_deleted = models.BooleanField(
+        verbose_name='удален',
+        default=False
+    )
+
     @property
     def normalized_duration(self) -> str:
         return normalize_time(
             self.duration
         )
+
+    def delete(self, *args, **kwargs):
+        # Исправлено здесь
+        self.is_deleted = True
+        self.save()
 
     def __str__(self) -> str:
         return f'Song: {self.title}'
@@ -235,3 +243,4 @@ class Song(models.Model):
         verbose_name = 'песня'
         verbose_name_plural = 'песни'
         ordering = ('id',)
+
